@@ -1,0 +1,12 @@
+[
+  {
+    "id": "d47531c2-f178-4d7f-9d0a-de185f52e6bb",
+    "institution_id": "inst1",
+    "item": "rice",
+    "quantity": 100,
+    "estimated_cost": 50000,
+    "fulfilled_quantity": 0,
+    "status": "open",
+    "date": "2025-02-28T11:03:18.040978"
+  }
+]

@@ -1,0 +1,399 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .impact-message {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">a
+        <h1 class="text-center mb-5">Donation Platform</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3>Create Donation Request</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="requestForm">
+                            <div class="mb-3">
+                                <label for="institution" class="form-label">Institution</label>
+                                <select class="form-select" id="institution" required>
+                                    <option value="">Select Institution</option>
+                                    <!-- Will be populated by JavaScript -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="item" class="form-label">Item</label>
+                                <select class="form-select" id="item" required>
+                                    <option value="">Select Item</option>
+                                    <option value="rice">Rice</option>
+                                    <option value="wheat_flour">Wheat Flour</option>
+                                    <option value="dal">Dal</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Quantity (kg)</label>
+                                <input type="number" class="form-control" id="quantity" min="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="estimatedCost" class="form-label">Estimated Cost (₹)</label>
+                                <input type="number" class="form-control" id="estimatedCost" min="1" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create Request</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h3>Make a Donation</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="donationForm">
+                            <div class="mb-3">
+                                <label for="requestSelect" class="form-label">Select Request</label>
+                                <select class="form-select" id="requestSelect" required>
+                                    <option value="">Select Request</option>
+                                    <!-- Will be populated by JavaScript -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="donorName" class="form-label">Donor Name</label>
+                                <input type="text" class="form-control" id="donorName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="donationType" class="form-label">Donation Type</label>
+                                <select class="form-select" id="donationType" required>
+                                    <option value="money">Money</option>
+                                    <option value="direct_item">Direct Item</option>
+                                </select>
+                            </div>
+                            <div id="moneyFields">
+                                <div class="mb-3">
+                                    <label for="amount" class="form-label">Amount (₹)</label>
+                                    <input type="number" class="form-control" id="amount" min="1">
+                                </div>
+                            </div>
+                            <div id="directItemFields" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="itemQuantity" class="form-label">Quantity (kg)</label>
+                                    <input type="number" class="form-control" id="itemQuantity" min="1">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="shop" class="form-label">Select Shop</label>
+                                    <select class="form-select" id="shop">
+                                        <option value="">Select Shop</option>
+                                        <!-- Will be populated by JavaScript -->
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success">Donate</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h3>Donation Results</h3>
+                    </div>
+                    <div class="card-body" id="resultsContainer">
+                        <p class="text-center text-muted">Make a donation to see results</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h3>Open Requests</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="requestsContainer">
+                            <p class="text-center text-muted">No open requests</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // DOM elements
+        const institutionSelect = document.getElementById('institution');
+        const requestSelect = document.getElementById('requestSelect');
+        const shopSelect = document.getElementById('shop');
+        const requestForm = document.getElementById('requestForm');
+        const donationForm = document.getElementById('donationForm');
+        const donationType = document.getElementById('donationType');
+        const moneyFields = document.getElementById('moneyFields');
+        const directItemFields = document.getElementById('directItemFields');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const requestsContainer = document.getElementById('requestsContainer');
+        
+        // Toggle donation fields based on type
+        donationType.addEventListener('change', function() {
+            if (this.value === 'money') {
+                moneyFields.style.display = 'block';
+                directItemFields.style.display = 'none';
+            } else {
+                moneyFields.style.display = 'none';
+                directItemFields.style.display = 'block';
+            }
+        });
+        
+        // Load institutions
+        async function loadInstitutions() {
+            try {
+                const response = await fetch('/api/institutions');
+                const institutions = await response.json();
+                
+                institutionSelect.innerHTML = '<option value="">Select Institution</option>';
+                institutions.forEach(inst => {
+                    const option = document.createElement('option');
+                    option.value = inst.id;
+                    option.textContent = `${inst.name} (${inst.type})`;
+                    institutionSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading institutions:', error);
+            }
+        }
+        
+        // Load shops
+        async function loadShops() {
+            try {
+                const response = await fetch('/api/shops');
+                const shops = await response.json();
+                
+                shopSelect.innerHTML = '<option value="">Select Shop</option>';
+                shops.forEach(shop => {
+                    const option = document.createElement('option');
+                    option.value = shop.id;
+                    option.textContent = `${shop.name} (Rating: ${shop.rating})`;
+                    shopSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading shops:', error);
+            }
+        }
+        
+        // Load donation requests
+        async function loadRequests() {
+            try {
+                const response = await fetch('/api/requests');
+                const requests = await response.json();
+                
+                // Populate request dropdown
+                requestSelect.innerHTML = '<option value="">Select Request</option>';
+                requests.filter(req => req.status === 'open').forEach(req => {
+                    const option = document.createElement('option');
+                    option.value = req.id;
+                    option.textContent = `${req.item} (${req.quantity}kg) - Remaining: ${req.quantity - req.fulfilled_quantity}kg`;
+                    requestSelect.appendChild(option);
+                });
+                
+                // Display open requests
+                if (requests.length === 0) {
+                    requestsContainer.innerHTML = '<p class="text-center text-muted">No open requests</p>';
+                } else {
+                    requestsContainer.innerHTML = '';
+                    const requestsList = document.createElement('ul');
+                    requestsList.className = 'list-group';
+                    
+                    requests.filter(req => req.status === 'open').forEach(req => {
+                        const item = document.createElement('li');
+                        item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                        
+                        const content = document.createElement('div');
+                        content.innerHTML = `
+                            <strong>${req.item}</strong> (${req.quantity}kg)
+                            <br>
+                            <small>Estimated Cost: ₹${req.estimated_cost} | Fulfilled: ${req.fulfilled_quantity}kg</small>
+                        `;
+                        
+                        const badge = document.createElement('span');
+                        badge.className = 'badge bg-primary rounded-pill';
+                        badge.textContent = 'Open';
+                        
+                        item.appendChild(content);
+                        item.appendChild(badge);
+                        requestsList.appendChild(item);
+                    });
+                    
+                    requestsContainer.appendChild(requestsList);
+                }
+            } catch (error) {
+                console.error('Error loading requests:', error);
+            }
+        }
+        
+        // Create request
+        requestForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const requestData = {
+                institution_id: document.getElementById('institution').value,
+                item: document.getElementById('item').value,
+                quantity: parseInt(document.getElementById('quantity').value),
+                estimated_cost: parseInt(document.getElementById('estimatedCost').value)
+            };
+            
+            try {
+                const response = await fetch('/api/requests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('Request created successfully');
+                    requestForm.reset();
+                    loadRequests();
+                    
+                    // Show anomaly warning if high risk
+                    if (result.anomaly_check && result.anomaly_check.risk_score > 7) {
+                        alert(`Warning: This request has been flagged as potentially unusual (Risk score: ${result.anomaly_check.risk_score}/10)\n\nReason: ${result.anomaly_check.reasoning}`);
+                    }
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error creating request:', error);
+                alert('Failed to create request');
+            }
+        });
+        
+        // Make donation
+        donationForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const requestId = document.getElementById('requestSelect').value;
+            const donorName = document.getElementById('donorName').value;
+            const donationType = document.getElementById('donationType').value;
+            
+            const donationData = {
+                request_id: requestId,
+                donor_name: donorName,
+                donation_type: donationType
+            };
+            
+            if (donationType === 'money') {
+                donationData.amount = parseInt(document.getElementById('amount').value);
+            } else {
+                donationData.quantity = parseInt(document.getElementById('itemQuantity').value);
+                donationData.shop_id = document.getElementById('shop').value;
+            }
+            
+            try {
+                const response = await fetch('/api/donations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(donationData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    donationForm.reset();
+                    loadRequests();
+                    displayDonationResults(result);
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error making donation:', error);
+                alert('Failed to process donation');
+            }
+        });
+        
+        // Display donation results
+        function displayDonationResults(result) {
+            resultsContainer.innerHTML = '';
+            
+            if (result.donation.donation_type === 'money') {
+                // Money donation result
+                const card = document.createElement('div');
+                card.className = 'card mb-3';
+                card.innerHTML = `
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Money Donation Processed</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Shop Recommendation</h6>
+                        <p><strong>Recommended Shop:</strong> ${result.donation.shop_recommendation.recommended_shop}</p>
+                        <p><strong>Price:</strong> ₹${result.donation.shop_recommendation.price_per_unit}/kg</p>
+                        <p><strong>Quantity Possible:</strong> ${result.donation.shop_recommendation.quantity_possible}kg</p>
+                        <p><strong>Reasoning:</strong> ${result.donation.shop_recommendation.reasoning}</p>
+                        
+                        <div class="mt-4">
+                            <h6>Impact Message</h6>
+                            <div class="impact-message">
+                                ${result.donation.impact_message}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                resultsContainer.appendChild(card);
+            } else {
+                // Direct item donation result
+                const card = document.createElement('div');
+                card.className = 'card mb-3';
+                card.innerHTML = `
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Direct Item Donation Processed</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Item Quantity:</strong> ${result.donation.quantity}kg</p>
+                        
+                        <div class="mt-4">
+                            <h6>Impact Message</h6>
+                            <div class="impact-message">
+                                ${result.donation.impact_message}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                resultsContainer.appendChild(card);
+            }
+        }
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInstitutions();
+            loadShops();
+            loadRequests();
+        });
+    </script>
+</body>
+</html>

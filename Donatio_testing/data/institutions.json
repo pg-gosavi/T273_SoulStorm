@@ -1,0 +1,9 @@
+[
+  {
+    "id": "inst1",
+    "name": "Hope Shelter",
+    "type": "orphanage",
+    "beneficiaries": 25,
+    "address": "123 Main St"
+  }
+]

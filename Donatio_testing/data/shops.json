@@ -1,0 +1,35 @@
+[
+  {
+    "id": "shop1",
+    "name": "Fresh Mart",
+    "items": {
+      "rice": 50,
+      "wheat_flour": 40,
+      "dal": 120
+    },
+    "rating": 4.5,
+    "distance": 2.3
+  },
+  {
+    "id": "shop2",
+    "name": "Daily Needs",
+    "items": {
+      "rice": 55,
+      "wheat_flour": 35,
+      "dal": 110
+    },
+    "rating": 4.2,
+    "distance": 1.5
+  },
+  {
+    "id": "shop3",
+    "name": "Green Grocers",
+    "items": {
+      "rice": 48,
+      "wheat_flour": 42,
+      "dal": 115
+    },
+    "rating": 4.0,
+    "distance": 3.1
+  }
+]
